@@ -20,15 +20,566 @@
         <div class="row"><a href="#pagina4">Link alla lezione sui sistemi di numerazione</a></div>               
      </div>
       <div id="pagina2" class="page">
-         <div class="row">Questo è il contenuto di pagina 1</div>
+         <div class="row"><div id="eckb-article-content-header-row-2"><div class="eckb-article-content-header-row-left-group"><div id="eckb-article-content-title-container"><h1 class="eckb-article-title">Codice assembly</h1></div></div></div></div><div id="eckb-article-content-body"><h2 class="wp-block-heading"><strong>Codice macchina e codice assembly</strong></h2>
+
+
+
+            <p>In un calcolatore, <strong>le istruzioni macchina sono in codice binario</strong>. Esse vengono decodificate direttamente dalla cpu (hardware) che poi esegue le istruzioni operando sui dati (registri e memoria).&nbsp;</p>
+            
+            
+            
+            <p>Possiamo in teoria usare direttamente il linguaggio macchina (che nella quasi totalit&agrave; delle implementazioni &egrave; come sappiamo in codice binario), ma per rendere questo codice comprensibile agli esseri umani, senza perdere in validit&agrave;, gli sviluppatori preferiscono usare il linguaggio assembly, che da una corrispondenza delle istruzioni codice macchina con codici alfanumerici che rappresentano istruzioni, registri e valori).&nbsp;</p>
+            
+            
+            
+            <p>In questa lezione introduciamo una versione puramente didattica del linguaggio assembly, con un set limitato di istruzioni. </p>
+            
+            
+            
+            <p>Nel presentare le istruzioni si ricorda che:<br>&ndash; la CPU presenta i registri di servizio PC, IR e SP (Program Counter, Instruction Register e Stack Pointer)</p>
+            
+            
+            
+            <p>&ndash; la CPU presenta i registri dati R0&hellip; R9</p>
+            
+            
+            
+            <p>&ndash; la memoria centrale &egrave; esterna alla cpu e ci si accede per caricare/scaricare celle da/verso i registri.</p>
+            
+            
+            
+            <p>In linguaggio assembly ogni istruzione ha la forma:</p>
+            
+            
+            
+            <p><strong><code>#INDIRIZZO: CODICEISTRUZIONE operando1, operando2, operando3&nbsp;</code></strong></p>
+            
+            
+            
+            <p>dove gli operandi possono essere da 0 a 3 (a seconda dell&rsquo;istruzione).</p>
+            
+            
+            
+            <p>Gli operandi possono essere:</p>
+            
+            
+            
+            <p>&ndash;&nbsp;<strong>registri</strong>: nominati con prefisso $: ad esempio $R5, prende il valore contenuto nel registro</p>
+            
+            
+            
+            <p>&ndash;&nbsp;<strong>valori assoluti</strong>: si indica il numero senza prefissi (es. &ldquo;5&rdquo;)</p>
+            
+            
+            
+            <p>&ndash;&nbsp;<strong>indirizzi di memoria</strong>: si indica il numero con prefisso # (es. &ldquo;#250&rdquo; dove 250 &egrave; l&rsquo;indirizzo di una cella di memoria)</p>
+            
+            
+            
+            <p>Vediamo quindi le istruzioni:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>Operazioni</td><td>Elenco</td></tr><tr><td>operazioni aritmetiche (somma, prodotto, ecc.) e di confronto tra operandi, eseguite dalla ALU:&nbsp;<br></td><td><strong><code>ADD, SUB, MUL, DIV</code>&nbsp;</strong>il primo operatore &egrave; dove si memorizza il risultato (sempre un registro), gli altri due sono gli operandi (possono essere o registri o valori assoluti)<br>ad esempio:&nbsp;<br><code><em>ADD $r0, 1, $r1</em>&nbsp;</code>-&gt; salva in $r0 il valore di <code>$r1 +</code><br><code><em>MULT $r5, 2, $r3</em>&nbsp;</code>-&gt; moltiplica $r3 * 2 e salva in $r5&nbsp;<strong><code>CMP</code></strong>&nbsp;(compare)<br>compara due valori.ad esempio:&nbsp;<br><em><code>CMP $r0, $r2, $r5</code></em>&nbsp;-&gt; metto in $r5 il valore 0 se sono uguali, altrimenti -1 se minore, +1 se maggiore&nbsp;</td></tr><tr><td>operazioni di controllo, ad esempio salti ad una istruzione specifica (a seconda di una condizione o liberi), eseguiti dalla CU</td><td><strong><code>JMP</code></strong>&nbsp;(salto)<br>es: <code>JMP #50</code> -&gt; salta all&rsquo;indirizzo 50&nbsp;<br><strong><code>BNE</code>&nbsp;</strong>(salto condizionato su diseguaglianza)<br>es. <code>BNE $r0, 5, #81</code> -&gt; salta all&rsquo;indirizzo 81 se r0 &egrave; diverso da 5&nbsp;<br><strong><code>BEQ</code></strong>&nbsp;(salto condizionato su uguaglianza)Es: <br><code>BEQ $r0, 3, $r1</code> &ndash; &gt; salto all&rsquo;indirizzo contenuto nel registro r1 se r0 &egrave; uguale a 3</td></tr><tr><td>operazioni di caricamento di registri dalla memoria e viveversa, eseguiti dalla CU&nbsp;</td><td><code><strong>STO</strong>&nbsp;<strong><em>sorgente destinazione</em></strong></code>&nbsp;(save),&nbsp;<br><strong><code>LOD&nbsp;<em>destinazione</em>&nbsp;<em>sorgente</em></code></strong>&nbsp;(load)carica e salva un dato dalla memoria<br>Es:&nbsp;<br><code>STO $r0 #451</code> -&gt; memorizzo il valore di $r0 nella cella #451<br><code>LOD $r6 $r2</code> -&gt; carico il valore all&rsquo;indirizzo indicato da r2 in r6</td></tr><tr><td>Subroutine</td><td><code><strong>CAL</strong>&nbsp;XXX:</code> questa istruzione salva all&rsquo;indirizzo $SP l&rsquo;indirizzo dell&rsquo;istruzione successiva, decrementa di 1 $SP ed esegue una jump all&rsquo;indirizzo XXX.<br><strong><code>RET</code></strong>&nbsp;Questa istruzione copia in $PC il valore di $SP L&rsquo;istruzione gestisce da sola l&rsquo;incremento dello stack pointer.&nbsp;E&rsquo; necessario l&rsquo;utilizzo del registro $SP per eseguire push e pop, aggiornando la posizione dello stack dopo ogni push e pop. Si ricorda che lo stack cresce dall&rsquo;alto verso il basso (quindi $SP diminuisce di 1 con push, aumenta di 1 con pop).&nbsp;<br>Es:<br><code>CAL #212 </code>-&gt; memorizza indirizzo di ritorno in stack, aggiorna lo stack pointer, ed esegue un salto all&rsquo;indirizzo 212.<br><code>RET</code> -&gt; carica l&rsquo;indirizzo di ritorno dallo stack, aggiorna lo stack (pop) ed esegue il salto all&rsquo;istruzione indicata</td></tr></tbody></table></figure>
+            
+            
+            
+            <h2 class="wp-block-heading"><strong>Un esempio pratico</strong></h2>
+            
+            
+            
+            <p>Esempio: vogliamo memorizzare la somma degli interi da 1 a n (cio&egrave; 1+2+3+&hellip;+n).&nbsp;</p>
+            
+            
+            
+            <p>Qui il codice C++: </p>
+            
+            
+            
+            <div class="hcb_wrap"><pre class="prism line-numbers lang-plain"><code>int sum(int n) {&nbsp;&nbsp;
+              int result = 0;&nbsp;&nbsp;
+              for (int i=0; i&lt;n; i++) {&nbsp;&nbsp;&nbsp;&nbsp;
+               result += i;&nbsp;&nbsp;
+              }&nbsp;&nbsp;
+              return result;
+            }</code></pre></div>
+            
+            
+            
+            <p>Useremo i seguenti registri per memorizzare il valore delle variabili:</p>
+            
+            
+            
+            <p>$r0 -&gt; n</p>
+            
+            
+            
+            <p>$r1 -&gt; result</p>
+            
+            
+            
+            <p>$r2 -&gt; i</p>
+            
+            
+            
+            <p>$r3 -&gt; registro di servizio che useremo per gestire il ciclo</p>
+            
+            
+            
+            <p>$r8 -&gt; contiene l&rsquo;indirizzo di memoria fisica dove si trova n (inserito dall&rsquo;utente)</p>
+            
+            
+            
+            <p>$r9 -&gt; contiene l&rsquo;indirizzo di memoria fisica dove memorizzare il risultato result alla fine</p>
+            
+            
+            
+            <p>Vediamo il codice (che ipotizziamo partire dall&rsquo;indirizzo #10)</p>
+            
+            
+            
+            <div class="hcb_wrap"><pre class="prism line-numbers lang-plain"><code>#10: LOD $r0, $r8 carichiamo in $r0 il valore della cella di memoria il cui indirizzo &egrave; in $r8
+            #11: LOD $r1, 0 carichiamo in $r1 il valore 0 (valore iniziale di result)
+            #12: LOD $r2, 0 carichiamo in $r2 il valore 0 (valore iniziale di i)
+            #13: ADD $r2, $r2, 1 incrementiamo $r2 di 1
+            #14: ADD $r1, $r1, $r2 sommiamo a $r1 il valore di $r2
+            #15: SUB $r3, $r0, $r2 memorizziamo in $r1 il risultato della sottrazione $r0 - $r2 (n-i)
+            #16: BNE $r3, 0, #13 se il risultato non &egrave; 0 (cio&egrave; se n-i != 0) allora saltiamo all'istruzione #13 (3 &egrave; l'etichetta) e il ciclo ricomincia
+            #17: STO $r1, $r9 memorizza nell'indirizzo di memoria indicato da $r9 il valore di $r1, cio&egrave; il risultato</code></pre></div>
+            
+            
+            
+            <p>TPSI&nbsp;&ndash; Elenco istruzioni assembly</p>
+            
+            
+            
+            <h2 class="wp-block-heading"><strong>Elenco istruzioni con tutti gli operatori</strong></h2>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>Istruzione</td><td>Esempi</td><td>Significato</td></tr><tr><td colspan="3">ARITMETICO-LOGICHE</td></tr><tr><td><strong>ADD registro, operando1, operando2</strong></td><td>ADD $r0, 1, 2<br>ADD $r0, $r1, $r2<br>ADD $r0, $r1, 1</td><td>Somma.Operando1 e operando2 possono essere valori dei registri o valori assoluti</td></tr><tr><td><strong>SUB registro, operando1, operando2</strong></td><td>SUB $r0, 1, 2<br>SUB $r0, $r1, $r2<br>SUB $r0, $r1, 1</td><td>Sottrazione.Operando1 e operando2 possono essere valori dei registri o valori assoluti</td></tr><tr><td><strong>MUL registro, operando1, operando2</strong></td><td>MUL $r0, 1, 2<br>MUL $r0, $r1, $r2<br>MUL $r0, $r1, 1</td><td>Moltiplicazione.Operando1 e operando2 possono essere valori dei registri o valori assoluti</td></tr><tr><td><strong>DIV registro, operando1, operando2</strong></td><td>DIV $r0, 1, 2<br>DIV $r0, $r1, $r2<br>DIV $r0, $r1, 1</td><td>Divisione.Operando1 e operando2 possono essere valori dei registri o valori assoluti</td></tr><tr><td><strong>CMP registro, operando1, operando2</strong></td><td>CMP $r0, 1, 2<br>CMP $r0, $r1, $r2<br>CMP $r0, $r1, 1</td><td>Comparazione.&nbsp;Operando1 e operando2 possono essere valori dei registri o valori assoluti.Il risultato &egrave;:-1 se operando1 &lt; operando20 se uguali+1 se operando2 &gt; operando1</td></tr><tr><td colspan="3">SALTO</td></tr><tr><td><strong>JMP operando</strong></td><td>JMP $r0JMP #232</td><td>Salto.L&rsquo;operando pu&ograve; essere un registro (il cui valore sar&agrave; considerato un indirizzo) o un valore assoluto.</td></tr><tr><td><strong>BNE operando1, operando2, operando3</strong></td><td>BNE $r0, $r1, #232BNE $r0, $r1, $r3BNE $r0, 5, #232BNE 3, $r1, $r1</td><td>Salto condizionato: eseguito se i valori degli operandi non sono uguali.&nbsp;Operando1 e operando2 possono essere valori dei registri o valori assoluti.Operando3 pu&ograve; essere un indirizzo assoluto oppure un registro (il cui valore sar&agrave; considerato un indirizzo)&nbsp;&nbsp;</td></tr><tr><td><strong>BEQ operando1, operando2, operando3</strong></td><td>BEQ $r0, $r1, #232<br>BEQ $r0, $r1, $r3<br>BEQ $r0, 5, #232<br>BNE 3, $r1, $r1</td><td>Salto condizionato: eseguito se i valori degli operandi sono uguali.&nbsp;Operando1 e operando2 possono essere valori dei registri o valori assoluti.Operando3 pu&ograve; essere un indirizzo assoluto oppure un registro (il cui valore sar&agrave; considerato un indirizzo)&nbsp;&nbsp;</td></tr><tr><td><strong>CAL indirizzo</strong></td><td>CAL $r0CAL #300</td><td>Esegue una push sullo stack con il valore dell&rsquo;indirizzo dell&rsquo;istruzione successiva, ed esegue un salto alla destinazione indicata come operando.</td></tr><tr><td><strong>RET</strong></td><td>RET</td><td>Esegue una pop dallo stack di un indirizzo, e vi esegue un salto.&nbsp;</td></tr></tbody></table></figure>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td colspan="3">MEMORIA</td></tr><tr><td><strong>STO sorgente, destinazione</strong></td><td>STO $r0, $r1<br>STO 5, $r1<br>STO 5, #128<br>STO $r1, #421</td><td>Salva un valore in memoria.&nbsp;<br>La sorgente pu&ograve; essere un registro o un valore assoluto.La destinazione pu&ograve; essere un registro (il cui valore sar&agrave; considerato un indirizzo), o un indirizzo assoluto.</td></tr><tr><td><strong>LOD destinazione, sorgente</strong></td><td>LOD $r0, $r1<br>LOD $r1, 5<br>LOD $r2, #128</td><td>Carica un valore dalla memoria.&nbsp;<br>La sorgente pu&ograve; essere un registro (il cui valore sar&agrave; considerato un indirizzo), un valore assoluto o un indirizzo assoluto. La destinazione deve essere un registro.&nbsp;</td></tr></tbody></table></figure>
+            
+            
+            
+            <p>Note:</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; $ indica il prefisso di un registro, # indica un prefisso di un indirizzo, senza prefissi &egrave; un valore assoluto;</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; i registri della CPU sono PC (program counter), IR (istruzione corrente) e SP (indirizzo prima cella libera dello stack), ed infine R0&hellip;R9 (registri dati);</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; si ricorda che in condizioni normali al termine di una istruzione, il PC viene incrementato di 1;</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; l&rsquo;esecuzione di una istruzione di salto consiste nel sovrascrivere il PC con l&rsquo;indirizzo verso cui bisogna saltare;</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; occorre fare attenzione al contenuto dei registri:</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; nelle istruzioni aritmetico-logiche, il contenuto del registro &egrave; considerato un valore;</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; nelle istruzioni di salto, quando viene usato un registro per indicare l&rsquo;istruzione verso cui saltare, il valore sar&agrave; considerato un indirizzo (quindi &ldquo;5&rdquo; sar&agrave; considerato &ldquo;#5&rdquo;).</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; nelle istruzioni di memoria, la sorgente &egrave; sempre un valore, la destinazione &egrave; sempre un indirizzo.</p>
+            
+            
+            
+            <p class="has-text-align-left">&ndash; la PUSH verso lo stack &egrave; sempre data dalla coppia di istruzioni:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>STO $sp, value</td></tr><tr><td>SUB $sp, $sp, 1</td></tr></tbody></table></figure>
+            
+            
+            
+            <p>in quanto &egrave; necessario aggiornare SP alla prima posizione libera.</p>
+            
+            
+            
+            <p>&ndash; la PULL dallo stack &egrave; sempre data dalla coppia di istruzioni:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>ADD $sp, $sp, 1</td></tr><tr><td>LOD $rX, $sp</td></tr></tbody></table></figure>
+            
+            
+            
+            <p>dove RX &egrave; un generico registro. E&rsquo; necessario in questo caso aggiornare SP all&rsquo;ultima posizione occupata.</p>
+            
+            
+            
+            <h2 class="wp-block-heading">In conclusione</h2>
+            
+            
+            
+            <p>&ndash; per un semplice ciclo sono necessarie pi&ugrave; operazioni a basso livello rispetto a quelle ad alto livello.&nbsp;</p>
+            
+            
+            
+            <p>&ndash; il codice macchina (di cui vediamo) &egrave; composto da istruzioni semplici e poco costose da realizzare&nbsp;</p>
+            
+            
+            
+            <p>&ndash; le istruzioni hanno lo stesso tempo di esecuzione</p></div>
          <div class="row"><a href="#home">Ritorna alla homepage</a></div>                
       </div>
       <div id="pagina3" class="page">
-         <div class="row">Questo è il contenuto di pagina 2</div>         
+         <div class="row">><div id="eckb-article-content-header-row-2"><div class="eckb-article-content-header-row-left-group"><div id="eckb-article-content-title-container"><h1 class="eckb-article-title">Stack</h1></div></div></div></div><div id="eckb-article-content-body"><h2 class="wp-block-heading" id="block-70b03cf11ed84660b1af4c7362a56811"><strong>Il modello di memoria della macchina di Von Neumann</strong></h2>
+
+
+
+            <figure class="wp-block-image" id="block-07ba17f9aa83477aa1fb982c3067d83e"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-5b0e905a-c592-41e1-8028-1a8206f05412-untitledpng/public" alt="notion image"/></figure>
+            
+            
+            
+            <p>Nella macchina di Von Neumann, la memoria &egrave; organizzata come un grosso array, ovvero una sequenza di celle ciascuna con un indirizzo assoluto (da 0 alla memoria massima allocabile). La memoria massima logica di un programma &egrave; in genere data dalla sua <span class="glossaryLink"  aria-describedby="tt"  data-cmtooltip="&lt;div class=glossaryItemTitle&gt;Architettura&lt;/div&gt;&lt;div class=glossaryItemBody&gt;&amp;lt;!-- wp:paragraph --&amp;gt;L&amp;#039;architettura di un sistema informatico indica il modo in cui &egrave; organizzato il software, di quali componenti e moduli &egrave; composto, che ruolo hanno e in che modo comunicano.&amp;lt;br/&amp;gt;&amp;lt;!-- /wp:paragraph --&amp;gt;&lt;/div&gt;"  data-gt-translate-attributes='[{"attribute":"data-cmtooltip", "format":"html"}]'  tabindex='0' role='link'>architettura</span>: i primi computer potevano avere pochi K di memoria, quelli moderni arrivano a decine di GB.</p>
+            
+            
+            
+            <p><strong>La memoria &egrave; unica e</strong><strong>contiene sia le istruzioni che i dati</strong>, cio&egrave; le variabili, le strutture dati, i dati di input/ouput ed ogni dato di elaborazione del programma.</p>
+            
+            
+            
+            <p>In molte implementazioni il&nbsp;<strong>codice</strong>&nbsp;viene memorizzato nella parte bassa della memoria, e ci&ograve; avviene al caricamento del programma in memoria (da parte del sistema operativo).</p>
+            
+            
+            
+            <p>Il programma in esecuzione ha pieno accesso alla memoria, e quindi pu&ograve; leggere e scrivere in qualsiasi locazione di memoria, conoscendone il solo indirizzo, cio&egrave; la posizione in memoria. I programmi scritti in linguaggio ad alto livello hanno comunque meccanismi di protezione della memoria, e quando vengono eseguiti forniscono al programmatore direttamente l&rsquo;accesso a variabili e tipi di dato (numeri, stringhe, liste, ecc.).</p>
+            
+            
+            
+            <p>Internamente per&ograve; queste variabili vengono memorizzate nell&rsquo;area di memoria immediatamente &ldquo;sopra&rdquo; al codice, che viene chiamata &ldquo;<strong>heap</strong>&rdquo; (cumulo). Il programma alloca dello spazio in memoria, in base alle dimensioni delle strutture dati da utilizzare e agli algoritmi previsti da quel linguaggio ad alto livello (ad es. Java o Python).</p>
+            
+            
+            
+            <p>La memoria &ldquo;in alto&rdquo; invece viene utilizzata per memorizzare le chiamate ai&nbsp;<strong>sottoprogrammi</strong>&nbsp;(detti anche subroutine). I sottoprogrammi sono parti di un programma che possono essere eseguite pi&ugrave; volte in parti diverse del programma. Essi in genere svolgono compiti di utilit&agrave; e semplificano lo sviluppo di software, evitando di ripetere di scrivere lo stesso codice. Nei linguaggi ad alto livello sono chiamati in genere &ldquo;funzioni&rdquo;.</p>
+            
+            
+            
+            <p>Qui un esempio di chiamata di funzione (somma tra loro tutti gli interi compresi tra 1 a n):</p>
+            
+            
+            
+            <div class="hcb_wrap"><pre class="prism line-numbers lang-cpp" data-lang="C++"><code>int sum(int n) {
+              int result = 0;
+              for (int i i=0; i&lt;n; i++) {
+                result += i;
+              }
+              return result;
+            }
+             
+            int s = sum(4);</code></pre></div>
+            
+            
+            
+            <p>Nella chiamata al sottoprogramma, il chiamante cede il controllo alla funzione del sottoprogramma, a cui passa eventualmente dei parametri. Alla fine tuttavia il chiamato deve restituire il controllo al chiamante, facendo eseguire l&rsquo;istruzione successiva alla chiamata.</p>
+            
+            
+            
+            <figure class="wp-block-image" id="block-929ded3786d64415afdf987c3388c237"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-7ba4473c-3f42-49c4-8b2e-fbb26e19d0d0-untitledpng/public" alt="notion image"/></figure>
+            
+            
+            
+            <p>Per poter eseguire quindi le chiamate ai sottoprogrammi occorre un &ldquo;meccanismo&rdquo; che memorizzi sia&nbsp;<strong>l&rsquo;indirizzo di ritorno</strong>&nbsp;della chiamata, sia i&nbsp;<strong>parametri</strong>&nbsp;o argomenti che questi possono ricevere. Inoltre se sono presenti vanno memorizzati anche eventuali&nbsp;<strong>valori di ritorno</strong>.</p>
+            
+            
+            
+            <p>Queste informazioni&nbsp;non si possono mettere in una posizione fissa della memoria, perch&egrave; anche un sottoprogramma ne pu&ograve; chiamare a sua volta un altro, e quindi deve poter anche lui memorizzare indirizzi di ritorno, parametri in ingresso e valori di ritorno. E&rsquo; necessaria una struttura dati dinamica, in memoria, che memorizzi queste informazioni, e che allo stesso tempo sia facile e veloce da utilizzare.</p>
+            
+            
+            
+            <p>Questo problema venne risolto brillantemente da Von Neumann facendo ricorso allo&nbsp;<strong>stack</strong>, una struttura matematica che si usa in programmazione.</p>
+            
+            
+            
+            <p>Vediamo di che si tratta.</p>
+            
+            
+            
+            <h2 class="wp-block-heading" id="block-982ff8432f894ad986b717d5ab3e7f30"><strong>Cos&rsquo;&egrave; lo stack?</strong></h2>
+            
+            
+            
+            <p>Lo stack (&ldquo;pila&rdquo;) &egrave; una struttura dati matematica che si usa in informatica per memorizzare liste di elementi secondo il principio LIFO (Last In First Out). In altri termini l&rsquo;accesso alla pila &egrave; solo tramite l&rsquo;ultimo elemento e le due uniche operazioni possibili sono:</p>
+            
+            
+            
+            <ul class="wp-block-list" id="block-e30979bd09104a148dcc2907c2523ac3">
+            <li><strong>push</strong>: aggiunta di un elemento</li>
+            
+            
+            
+            <li><strong>pop</strong>: estrazione di un elemento e sua rimozione</li>
+            </ul>
+            
+            
+            
+            <p>Esempio: ipotizziamo di avere all&rsquo;inizio uno stack vuoto (nessun elemento). Se eseguiamo PUSH (5) avremo:</p>
+            
+            
+            
+            <figure class="wp-block-image" id="block-d31167b3d2894a8e91c06d5da13c4956"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-a285551c-fc09-4067-a3e5-eb7f18db4362-untitledpng/public" alt="notion image"/></figure>
+            
+            
+            
+            <p>Lo stack contiene un solo elemento. Se eseguiamo una PUSH(7) avremo:</p>
+            
+            
+            
+            <figure class="wp-block-image" id="block-902dbdb2914e419cafd6a2c59748f3ff"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-dfd007f7-0838-480f-8fd4-ff2dee3d1747-untitledpng/public" alt="notion image"/></figure>
+            
+            
+            
+            <p>Ora sono due elementi. Se aggiungiamo ancora il valore 4&nbsp;&nbsp;con PUSH(4) avremo:</p>
+            
+            
+            
+            <figure class="wp-block-image" id="block-2dc42df7eb504f1b9a86ace70e58fc07"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-4ae1974e-9d7b-4ac3-af4a-2dbeaef964c3-untitledpng/public" alt="notion image"/></figure>
+            
+            
+            
+            <p>E cos&igrave; via. Ma attenzione, se eseguiamo POP() estrarremo l&rsquo;ultimo valore (cio&egrave; 4) e rimarr&agrave;:</p>
+            
+            
+            
+            <figure class="wp-block-image" id="block-cc0c423e06194139903d3e61c50b4b47"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-3bfdf2cd-90ef-4ca7-b2b7-5ceee4bb2c41-untitledpng/public" alt="notion image"/></figure>
+            
+            
+            
+            <p>La macchina di Von Neumann prevede un registro della CPU che si chiama&nbsp;<strong>SP</strong>&nbsp;(&ldquo;stack pointer&rdquo;) che contiene l&rsquo;indirizzo dell&rsquo;ultima cella dello stack.</p>
+            
+            
+            
+            <p>Quando un programma (o sottoprogramma) ha bisogno di chiamare un sottoprogramma, memorizza nello stack :</p>
+            
+            
+            
+            <p>1)&nbsp;<strong>indirizzo di ritorno</strong>&nbsp;(PUSH)</p>
+            
+            
+            
+            <p>2)&nbsp;<strong>parametri</strong>&nbsp;opzionali (PUSH)</p>
+            
+            
+            
+            <p>E poi chiama (nella CPU si modifica il PC) il sottoprogramma.</p>
+            
+            
+            
+            <p>Il sottoprogramma esegue la sua attivit&agrave;, SENZA conoscere informazioni sul chiamante, ma lavorando solo sui parametri presenti nello stack.</p>
+            
+            
+            
+            <p>Al termine della sua esecuzione (quando cio&egrave; viene richiamato &ldquo;return&rdquo;):</p>
+            
+            
+            
+            <p>3)&nbsp;<strong>estrae</strong>&nbsp;ed&nbsp;<strong>elimina</strong>&nbsp;i&nbsp;<strong>parametri</strong>&nbsp;(POP)</p>
+            
+            
+            
+            <p>4)&nbsp;<strong>estrae indirizzo di ritorno</strong>&nbsp;(POP)</p>
+            
+            
+            
+            <p>5)&nbsp;<strong>aggiunge eventuali valori di ritorno</strong>&nbsp;(PUSH)</p>
+            
+            
+            
+            <p>6) modifica il PC e quindi l&rsquo;istruzione successiva sar&agrave; quella successiva del chiamante.</p>
+            
+            
+            
+            <p>Il chiamante:</p>
+            
+            
+            
+            <p>7)&nbsp;<strong>estrae il valore di ritorno dallo stack</strong>&nbsp;(se presente) (POP)</p>
+            
+            
+            
+            <p>Lo stack (acceduto mediante SP) &egrave; quindi un meccanismo che permette di:</p>
+            
+            
+            
+            <ul class="wp-block-list" id="block-fd81cfc2da0748ee8c4e900615e52a80">
+            <li>scambiare dati tra chiamante e chiamato;</li>
+            
+            
+            
+            <li>memorizzare dati&nbsp;e poterli cancellare dinamicamente quando non servono pi&ugrave;, partendo dal pi&ugrave; recente;</li>
+            
+            
+            
+            <li>siccome &egrave; una pila, ogni procedura in esecuzione pu&ograve; a sua volta chiamare delle sottoprocedure.</li>
+            </ul>
+            
+            
+            
+            <p>La limitazione dello stack &egrave; ovviamente data dalla dimensione della memoria: se la memoria dello stack occupa memoria fino ad arrivare a raggiungere lo heap, succede una problematica che si chiama &ldquo;stack overflow&rdquo;. Di solito all&rsquo;avvio del programma viene memorizzato un limite superiore alla dimensione dello stack proprio per evitare questo tipo di problema, ed alcune architetture prevedono un riconoscimento hardware.</p>
+            
+            
+            
+            <p>Qui sotto lo schema riassuntivo che mostra cosa succede allo stack in una tipica chiamata di sottoprogramma.</p>
+            
+            
+            
+            <figure class="wp-block-image" id="block-8a316f08310a42f3b03661c5fb080f96"><img decoding="async" src="https://imagedelivery.net/IEMzXmjRvW0g933AN5ejrA/wwwnotionso-image-prod-files-secures3us-west-2amazonawscom-54c12d55-229f-4c83-b4b6-dd7d262e4443-01bf541c-698d-4d57-afb1-3904d6e29e1c-untitledpng/public" alt="notion image"/></figure></div>         
          <div class="row"><a href="#home">Ritorna alla homepage</a></div>              
       </div>
       <div id="pagina4" class="page">                          
-         <div class="row">Questo è il contenuto di pagina 3</div>
+         <div class="row"><div id="eckb-article-content-header-row-2"><div class="eckb-article-content-header-row-left-group"><div id="eckb-article-content-title-container"><h1 class="eckb-article-title">Sistemi di numerazione</h1></div></div></div></div><div id="eckb-article-content-body"><p>Il sistema di numerazione che utilizziamo &egrave; un sistema posizionale, in quanto usa lo stesso gruppo di simboli (dette cifre) per rappresentare i numeri, il cui valore dipende dalla posizione che la cifra stessa ha nel numero, con la posizione meno significativa pi&ugrave; a destra.</p>
+
+
+
+            <p>Il sistema che usiamo &egrave; detto anche decimale perch&eacute; le cifre sono 10, e vanno da 0 a 9: la posizione della cifra indica il suo valore in multipli di 10 in base alla sua posizione.</p>
+            
+            
+            
+            <p>Ad esempio il numero 36143 si rappresenta indicando la posizione delle cifre:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td><td>Base</td></tr><tr><td><strong>3</strong></td><td><strong>6</strong></td><td><strong>1</strong></td><td><strong>4</strong></td><td><strong>3</strong></td><td><strong>10</strong></td></tr></tbody></table></figure>
+            
+            
+            
+            <p><strong>= 3</strong>*10<sup>4</sup>&nbsp;+&nbsp;<strong>6</strong>*10<sup>3</sup>&nbsp;+&nbsp;<strong>1</strong>*10<sup>2</sup>&nbsp;+&nbsp;<strong>4</strong>*10<sup>1</sup>&nbsp;+&nbsp;<strong>3</strong>*10<sup>0</sup>=<strong>36143</strong><sub>10</sub></p>
+            
+            
+            
+            <p>Il numero in questa forma &egrave; detto espresso in&nbsp;<strong>forma</strong>&nbsp;<strong>polinomiale</strong>.</p>
+            
+            
+            
+            <p><strong>Il sistema decimale non &egrave; l&rsquo;unico possibile.&nbsp;</strong></p>
+            
+            
+            
+            <p>Ad esempio &egrave; possibile utilizzare 5 cifre (da 0 a 4) per rappresentare un numero. Questo sistema &egrave; detto sistema&nbsp;<strong>quinario</strong>. In questo sistema 5 diventa 10, 25 diventa 100, 125 diventa 1000 e via andare. Le cifre seguono quindi la stessa regola:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td><td>Base</td></tr><tr><td><strong>4</strong></td><td><strong>0</strong></td><td><strong>2</strong></td><td><strong>3</strong></td><td><strong>1</strong></td><td><strong>5</strong></td></tr></tbody></table></figure>
+            
+            
+            
+            <p><strong>= 3</strong>*5<sup>4</sup>&nbsp;+&nbsp;<strong>6</strong>*5<sup>3</sup>&nbsp;+&nbsp;<strong>1</strong>*5<sup>2</sup>&nbsp;+&nbsp;<strong>4</strong>*5<sup>1</sup>&nbsp;+&nbsp;<strong>3</strong>*5<sup>0&nbsp;</sup>=&nbsp;<strong>2673</strong><sub>10</sub></p>
+            
+            
+            
+            <p>Allo stesso modo possiamo usare sistemi in qualsiasi base.</p>
+            
+            
+            
+            <p>La base pu&ograve; anche essere superiore a 10. Ad esempio nel sistema&nbsp;<strong>esadecimale</strong>&nbsp;si usano i simboli 0..9 e poi si usano le lettere A,B,C,D,E,F dove A=10, B=11, e cos&igrave; via fino a F=15.</p>
+            
+            
+            
+            <p>Ad esempio:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td><td>Base</td></tr><tr><td><strong>4</strong></td><td><strong>C</strong></td><td><strong>A</strong></td><td><strong>3</strong></td><td><strong>0</strong></td><td><strong>16</strong></td></tr></tbody></table></figure>
+            
+            
+            
+            <p><strong>= 4</strong>*16<sup>4</sup>&nbsp;+&nbsp;<strong>C</strong>*16<sup>3</sup>&nbsp;+&nbsp;<strong>A</strong>*16<sup>2</sup>&nbsp;+&nbsp;<strong>3</strong>*16<sup>1</sup>&nbsp;+&nbsp;<strong>0</strong>*16<sup>0&nbsp;</sup>=&nbsp;<strong>313904</strong><sub>10</sub></p>
+            
+            
+            
+            <p>La definizione generale &egrave; la seguente:&nbsp;</p>
+            
+            
+            
+            <p><strong>dato un numero<em>&nbsp;x</em>&nbsp;in una base&nbsp;<em>b</em>, esso &egrave; composto da un gruppo di cifre&nbsp;<em>c<sub>0</sub>&hellip;c<sub>n-1</sub></em>&nbsp;che possono assumere un valore da&nbsp;<em>0&nbsp;</em>a&nbsp;<em>b-1</em>. Esso &egrave; convertibile in base 10 con la seguente espressione polinomiale:<br></strong></p>
+            
+            
+            
+            <p><strong>c<sub>0</sub>*b<sup>n-1</sup>+ c<sub>1</sub>*b<sup>n-2</sup>+&hellip;+ c<sub>n-1</sub>*b<sup>0</sup>&nbsp;= n<sub>10</sub></strong></p>
+            
+            
+            
+            <p>Gli esempi sopra indicati rispettano tutti questa regola.</p>
+            
+            
+            
+            <h2 class="wp-block-heading"><strong>Sistema binario</strong></h2>
+            
+            
+            
+            <p>In ambito informatico &egrave; particolarmente importante il sistema&nbsp;<strong>binario</strong>&nbsp;per memorizzare i numeri, in quanto &egrave; molto conveniente creare circuiti elettronici che memorizzano due valori possibili (che corrispondono a 0 e 1).</p>
+            
+            
+            
+            <p>Un numero binario si rappresenta con la definizione generale vista sopra.</p>
+            
+            
+            
+            <p>Quindi per esempio col numero 10011 in base 2 avremo:</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td>4</td><td>3</td><td>2</td><td>1</td><td>0</td><td>Base</td></tr><tr><td><strong>1</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>1</strong></td><td><strong>1</strong></td><td><strong>2</strong></td></tr></tbody></table></figure>
+            
+            
+            
+            <p><strong>= 1</strong>*2<sup>4</sup>&nbsp;+&nbsp;<strong>0</strong>*2<sup>3</sup>&nbsp;+&nbsp;<strong>0</strong>*2<sup>2</sup>&nbsp;+&nbsp;<strong>1</strong>*2<sup>1</sup>&nbsp;+&nbsp;<strong>1</strong>*2<sup>0&nbsp;</sup>=&nbsp;<strong>19</strong><sub>10</sub></p>
+            
+            
+            
+            <p>Proviamo per&ograve; a fare la conversione opposta, cio&egrave; da&nbsp;<strong>decimale a binario</strong>.</p>
+            
+            
+            
+            <p>L&rsquo;algoritmo per convertire da decimale a binario un numero n &egrave; il seguente:</p>
+            
+            
+            
+            <ol class="wp-block-list">
+            <li><strong>Si trova la potenza di 2 pi&ugrave; grande</strong>&nbsp;tra quelle inferiori al numero n binario da convertire, che chiamiamo b. A questo punto comincia il ciclo:</li>
+            
+            
+            
+            <li><strong>Si divide n per b</strong>, il&nbsp;<strong>quoziente</strong>&nbsp;(che pu&ograve; essere 0 o 1)&nbsp;<strong>&egrave; una cifra</strong>&nbsp;del numero binario;</li>
+            
+            
+            
+            <li><strong>Si prende il resto</strong>&nbsp;e si&nbsp;<strong>ripete</strong>&nbsp;il punto 2;</li>
+            
+            
+            
+            <li><strong>Si esce quando il resto vale 0</strong>.</li>
+            </ol>
+            
+            
+            
+            <p>Proviamo un esempio con n=365, che ha come potenza massima inferiore a n=256</p>
+            
+            
+            
+            <figure class="wp-block-table"><table><tbody><tr><td><strong>step</strong></td><td><strong>resto</strong></td><td><strong>potenza di 2</strong></td><td><strong>quoziente</strong></td></tr><tr><td>1</td><td>365</td><td>256</td><td><strong>1</strong></td></tr><tr><td>2</td><td>109</td><td>128</td><td><strong>0</strong></td></tr><tr><td>3</td><td>109</td><td>64</td><td><strong>1</strong></td></tr><tr><td>4</td><td>45</td><td>32</td><td><strong>1</strong></td></tr><tr><td>5</td><td>13</td><td>16</td><td><strong>0</strong></td></tr><tr><td>6</td><td>13</td><td>8</td><td><strong>1</strong></td></tr><tr><td>7</td><td>5</td><td>4</td><td><strong>1</strong></td></tr><tr><td>8</td><td>1</td><td>2</td><td><strong>0</strong></td></tr><tr><td>9</td><td>1</td><td>1</td><td><strong>1</strong></td></tr></tbody></table></figure>
+            
+            
+            
+            <p>Il numero sar&agrave;:&nbsp;<strong>1011001101</strong>.</p></div>
          <div class="row"><a href="#home">Ritorna alla homepage</a></div>  
       </div>
    </div>
